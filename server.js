@@ -11,7 +11,7 @@ const server = http.createServer(app);
 
 const CORS_ORIGINS = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
-  : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5174'];
+  : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5174', 'https://web-chat-live-frontend-nch3-pe6nk9jn2.vercel.app'];
 
 const io = new Server(server, {
   maxHttpBufferSize: 5e6,
