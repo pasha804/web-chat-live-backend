@@ -5,8 +5,6 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -68,6 +66,8 @@ function emitToAdmins(event, data) {
   }
 }
 
+app.get('/', (_, res) => res.json({ app: 'Love Chat', status: 'running', docs: '/health' }));
+
 // ── REST API ─────────────────────────────────────────────────────────────────
 app.post('/api/rooms/create', (req, res) => {
   const roomId = `love-${crypto.randomBytes(3).toString('hex')}`;
@@ -107,25 +107,6 @@ app.delete('/api/rooms/:roomId', (req, res) => {
 app.get('/health', (_, res) =>
   res.json({ status: 'ok', rooms: Object.keys(rooms).length, admins: admins.size })
 );
-
-// ── Serve frontend SPAs ──────────────────────────────────────────────────────
-const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
-const adminDist = path.join(__dirname, '..', 'frontend-admin', 'dist');
-
-if (fs.existsSync(adminDist)) {
-  app.use('/admin', express.static(adminDist, { maxAge: '1y' }));
-  app.get('/admin/*', (req, res) => {
-    res.sendFile(path.join(adminDist, 'index.html'));
-  });
-}
-
-if (fs.existsSync(frontendDist)) {
-  app.use(express.static(frontendDist, { maxAge: '1y' }));
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) return next();
-    res.sendFile(path.join(frontendDist, 'index.html'));
-  });
-}
 
 // ── Socket.IO ────────────────────────────────────────────────────────────────
 io.on('connection', (socket) => {
